@@ -1,0 +1,93 @@
+\section{Methodology}
+\label{sec:method}
+
+\subsection{Bounded ReAct+RAG Control Loop}
+
+Algorithm~1 formalizes the investigation control flow. The planner receives an
+incident $I$, a confidence threshold $\tau_{\text{conf}}$, and a maximum hop
+budget $B$. Prior to entering the planning loop, the GBDT Analytics Engine
+computes posterior probabilities $(P_{\text{TP}}, P_{\text{BP}}, P_{\text{FP}})$
+and the Domain Knowledge Engine retrieves the top-$k$ relevant MITRE ATT\&CK
+technique objects $\mathcal{K}$, providing the LLM with both statistical and
+semantic context.
+
+The Evidence Gate at line~9 of Algorithm~1 implements the core contribution
+addressing the 40.4\% FNR failure mode: if a tool query returns an empty result
+set \emph{and} $P_{\text{TP}} < 0.5$, the investigation is flagged for mandatory
+human escalation ($E \leftarrow \text{True}$), preventing premature FP closure
+on absence of evidance. After the planning loop exits, the Evidence Fusion Engine
+computes the final verdict.
+
+\begin{figure}[!h]
+\begin{minipage}{\columnwidth}
+\hrulefill\par
+\vspace{2pt}
+\textbf{Algorithm 1: Bounded ReAct+RAG with Evidence Gate}\par
+\vspace{2pt}
+\hrulefill\par
+\vspace{4pt}
+\small
+\begin{algorithmic}[1]
+\REQUIRE Incident $I$, Threshold $\tau_{\text{conf}}$, Max hops $B$
+\ENSURE Triage Verdict $V$, Escalation flag $E$
+\STATE $(P_{\text{TP}}, P_{\text{BP}}, P_{\text{FP}}) \leftarrow \text{PredictGBDT}(I)$
+\STATE $\mathcal{K} \leftarrow \text{RetrieveATTCK}(I.\text{context})$
+\STATE $\mathcal{E} \leftarrow \emptyset$, $b \leftarrow 0$, $E \leftarrow \text{False}$
+\WHILE{$b < B$ \textbf{and not} Terminated}
+    \STATE $A \leftarrow \text{LLMPlannerThought}(I, \mathcal{E}, \mathcal{K})$
+    \IF{$A = \text{CALL\_TOOL}(tool, args)$}
+        \STATE $R \leftarrow \text{ExecuteTool}(tool, args)$
+        \IF{$R.\text{is\_empty}$ \textbf{and} $P_{\text{TP}} < 0.5$}
+            \STATE $E \leftarrow \text{True}$ \COMMENT{Anti-premature-closure gate}
+        \ENDIF
+        \STATE $\mathcal{E} \leftarrow \mathcal{E} \cup \{R\}$
+    \ELSIF{$A = \text{CONCLUDE}$}
+        \STATE \textbf{break}
+    \ENDIF
+    \STATE $b \leftarrow b + 1$
+\ENDWHILE
+\STATE $V, E \leftarrow \text{EvidenceFusion}(P, \mathcal{E}, \mathcal{K}, \tau_{\text{conf}}, E)$
+\RETURN $(V, E)$
+\end{algorithmic}
+\vspace{2pt}
+\hrulefill
+\end{minipage}
+\end{figure}
+
+\subsection{Tool Contracts and Provenance}
+
+All agent tool calls are governed by strictly typed read-only contracts to prevent
+unintended side effects on production infrastructure. Table~\ref{tab:contracts}
+enumerates the four approved tool capabilities with their typed input parameters
+and validated output schemas.
+
+\begin{table}[h]
+\caption{Read-Only Tool Contracts and Output Provenance}
+\label{tab:contracts}
+\centering
+\begin{tabular}{p{1.8cm}p{2.6cm}p{3.5cm}}
+\toprule
+\textbf{Tool} & \textbf{Typed Inputs} & \textbf{Validated Outputs} \\
+\midrule
+\texttt{query\_logs}    & Host ID, Time Range  & Event list, match count, empty-flag \\
+\texttt{predict\_gbdt}  & Alert feature vector & $(P_{\text{TP}}, P_{\text{BP}}, P_{\text{FP}})$, TreeSHAP top-5 \\
+\texttt{rag\_attck}     & Extracted command    & Technique ID, Tactic, Kill-chain phase \\
+\texttt{get\_playbook}  & Tactic name          & NIST SP~800-61r3 action steps \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Evidence Fusion and Asymmetric Escalation Policy}
+
+The Evidence Fusion Engine computes the final posterior by combining GBDT statistical
+priors with LLM-derived likelihood corrections. Performance is assessed through:
+
+\begin{equation}
+\text{FNR}_{\text{TP}} = \frac{\text{FN}_{\text{TP}}}{\text{TP} + \text{FN}_{\text{TP}}}, \quad \text{HER} = \frac{N_{\text{escalated}}}{N_{\text{total}}}
+\end{equation}
+
+The multi-factor fusion probability is computed without line-breaking as:
+\begin{equation}
+P_{f}(\text{TP}|\mathcal{E},\mathcal{K}) = \frac{1}{Z}[w_1 P_{\text{GBDT}}(\text{TP}) + w_2 P_{\text{LLM}}(\text{TP}) \prod_{i=1}^{M} (1 - P_{\text{FP}}(\text{det}_i)) + w_3 \sum_{j=1}^{K} \text{RAG\_score}(k_j, \mathcal{E})]
+\end{equation}
+where $Z$ is the normalizer across verdict classes $\{\text{TP}, \text{BP}, \text{FP}\}$.

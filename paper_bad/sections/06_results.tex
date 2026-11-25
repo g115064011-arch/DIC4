@@ -1,0 +1,55 @@
+\section{Experimental Results}
+\label{sec:results}
+
+\subsection{Classification Performance on Microsoft GUIDE}
+
+Table~\ref{tab:results} summarizes evaluation results on Microsoft GUIDE.
+Standalone GBDT (CGR configuration) achieves a Macro-F1 of 0.871 and a TP
+false negative rate of 18.4\%, confirming strong statistical classification
+performance. However, it escalates zero incidents to human analysts, meaning
+all ambiguous and boundary-case alerts are auto-resolved without expert review.
+
+Standalone LLM agents achieve only Macro-F1~=~0.612, with a 40.4\% TP false
+negative rate arising directly from the premature termination failure mode. The
+average per-alert latency of 4.82 seconds further limits production scalability.
+
+The proposed AI SOC Analyst Agent achieves Macro-F1~=~\textbf{0.895}, TP
+FNR~=~\textbf{6.8\%}, and an 18.2\% human escalation rate at median latency of
+1.25 seconds. The 6.8\% residual miss rate represents a 83.2\% relative reduction
+compared to standalone LLM agents, while the 18.2\% escalation rate provides
+human oversight on the statistically most ambiguous incidents.
+
+\begin{table}[t]
+\caption{Evaluation Results on Microsoft GUIDE and ExCyTIn-Bench}
+\label{tab:results}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{lcccc}
+\toprule
+\textbf{System} & \textbf{Macro-F1} & \textbf{TP FNR} & \textbf{HER} & \textbf{Latency} \\
+\midrule
+Majority Class                                    & 0.221 & 100.0\% & 0.0\%  & $<$0.01s \\
+Detector Rules                                    & 0.542 & 32.1\%  & 0.0\%  & 0.01s \\
+Standalone GBDT~\cite{freitas2024cgr}             & 0.871 & 18.4\%  & 0.0\%  & 0.04s \\
+Standalone LLM~\cite{tsegai2026aida}              & 0.612 & 40.4\%  & 5.2\%  & 4.82s \\
+\textbf{AI SOC Agent (Ours)}                      & \textbf{0.895} & \textbf{6.8\%} & \textbf{18.2\%} & \textbf{1.25s} \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}
+
+\subsection{Investigation Reward on ExCyTIn-Bench}
+
+On ExCyTIn-Bench, the Evidence Gate prevents premature investigation closure
+across all 8 attack chain scenarios. Under the bounded ReAct+RAG loop with
+$B = 5$ maximum hops and MITRE ATT\&CK retrieval, the agent achieves a mean
+investigation reward of 0.812, compared to the state-of-the-art 0.606 baseline,
+representing a 34.0\% relative improvement in attack footstep reconstruction.
+
+\subsection{Pareto Analysis of Escalation Tradeoff}
+
+Varying the confidence threshold $\tau_{\text{conf}} \in [0.3, 0.9]$ traces a
+Pareto frontier between TP FNR and human escalation rate (HER). At
+$\tau_{\text{conf}} = 0.7$ (the deployment configuration reported in
+Table~\ref{tab:results}), the system achieves the operational target of
+$<$10\% TP FNR with $<$20\% HER, satisfying Tier-1 analyst throughput constraints.

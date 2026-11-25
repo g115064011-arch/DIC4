@@ -4,7 +4,7 @@ __pycache__/
 .pytest_cache/
 .DS_Store
 Thumbs.db
-*.log
+bin/
 *.aux
 *.bbl
 *.blg
@@ -12,4 +12,3 @@ Thumbs.db
 *.synctex.gz
 *.fdb_latexmk
 *.fls
-

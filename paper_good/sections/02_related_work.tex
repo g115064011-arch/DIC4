@@ -1,0 +1,126 @@
+\section{Related Work}
+\label{sec:related}
+
+Automated SOC alert triage sits at the intersection of machine learning-based
+anomaly detection, natural language-driven autonomous agents, and operational
+cybersecurity practice. We survey these three dimensions and identify the research
+gaps motivating our design.
+
+\subsection{Machine Learning for Alert Prioritization}
+
+Early large-scale automation of SOC workflows deployed tabular statistical
+classifiers over structured endpoint and network log features.
+Freitas et al.~\cite{freitas2024cgr} introduced Copilot Guided Response (CGR),
+deploying Gradient Boosted Decision Trees (GBDT) with Shapley Additive Explanations
+(SHAP) across Microsoft enterprise tenants, achieving a macro-F1 score above 0.87
+on the GUIDE dataset. The key advantage of GBDT-based approaches lies in their
+calibrated probabilistic outputs and computational efficiency ($<$0.04\,s per
+incident), making them suitable for high-throughput production environments.
+However, CGR and similar statistical models lack semantic comprehension of
+kill-chain attack progressions: they classify individual alert feature vectors
+without reasoning across correlated multi-step activity sequences.
+
+Garcia et al.~\cite{garcia2025rosca} proposed ROSCA, integrating alert correlation
+with MITRE ATT\&CK technique mapping to rank alert severity. ROSCA demonstrated
+scalability advantages over graph-based correlation engines but required manually
+curated MITRE mappings for each deployment environment.
+Freitas et al.~\cite{freitas2026aip} subsequently introduced Adaptive Incident
+Prioritization (AIP), dynamically re-ranking queued incidents based on evolving
+threat context, reducing analyst queue overflow by approximately 23\% in production.
+Ndichu et al.~\cite{ndichu2026survey} provide a comprehensive survey of AI-driven
+alert screening approaches, cataloguing 47 methods and identifying that high
+false-positive tolerance remains the predominant unresolved challenge across systems.
+
+\subsection{LLM Agents for Autonomous Cyber Investigation}
+
+The emergence of tool-augmented LLMs enabled a qualitative shift from passive
+classification to active evidence gathering. Wei et al.~\cite{wei2025cortex}
+proposed CORTEX, a multi-agent debate architecture in which independent LLM
+instances challenge each other's threat hypotheses before converging on a verdict.
+CORTEX improved investigation consensus quality but introduced substantial per-alert
+API costs (approximately \$24 per complex multi-hop investigation), limiting
+deployment to Tier-2 escalation workflows.
+
+Habibzadeh et al.~\cite{habibzadeh2025llmsoc} survey LLM integration patterns
+across SOC workflows, identifying five operational models: prompt-only, RAG-augmented,
+tool-using ReAct, multi-agent debate, and hybrid human-AI handoff. Their analysis
+finds that tool-using ReAct variants offer the best cost-accuracy tradeoff under
+standard enterprise budgets, but are most vulnerable to premature investigation
+termination on empty query returns.
+
+Tsegai et al.~\cite{tsegai2026aida} provide the most rigorous empirical characterization
+of this vulnerability through AIDA (Automated Intrusion Detection Agent), evaluating five
+distinct tool-using agent architectures across diverse enterprise alert
+corpora. All five strategies exhibited a true-positive false negative rate of at
+least 40.4\%, with the dominant failure mode being premature termination: when an
+initial log query returns an empty result set, the LLM incorrectly infers absence
+of malicious activity and closes the investigation without further evidence gathering.
+This failure mode is structurally absent from pure-classifier approaches and
+represents the critical gap exploited in our Evidence Gate design.
+
+\subsection{Benchmark Evaluation Frameworks}
+
+Realistic evaluation of autonomous cyber investigation agents requires multi-hop log
+environments reflecting authentic enterprise attack chains. Wu et al.~\cite{wu2026excytin}
+introduce ExCyTIn-Bench, comprising 57 relational log tables and 8 complete attack
+chains sourced from real-world breach telemetry, with an investigation reward metric
+measuring the fraction of attacker footsteps correctly identified. The state-of-the-art
+investigation reward plateaus at 0.606, indicating that existing agents correctly trace
+only approximately 60\% of attack activities even under ideal laboratory conditions.
+
+Deason et al.~\cite{deason2025cybersoceval} develop CyberSOCEval, extending LLM
+evaluation to malware analysis and threat intelligence reasoning tasks. TechniqueRAG,
+proposed by Lekssays et al.~\cite{lekssays2025techniquerag}, addresses knowledge
+hallucination in ATT\&CK technique annotation by retrieving structured STIX~2.1
+objects from curated CTI corpora, demonstrating 19\% improvement in technique
+mapping accuracy over zero-shot LLM baselines.
+
+\subsection{Operational Human-in-the-Loop Considerations}
+
+Deployment of automated triage in production SOCs introduces human-factor risks
+independent of classification accuracy. Tilbury and Flowerday~\cite{tilbury2026vigilance}
+conducted a longitudinal field study across four enterprise SOC deployments, finding
+that sustained automation reliance induces vigilance decrements: analysts who routinely
+approve automated verdicts without independent verification exhibit a 31\% reduction
+in anomaly detection sensitivity over six months. This ``automation complacency''
+effect mandates explicit, calibrated human escalation boundaries rather than
+unrestricted automation.
+
+Alahmadi et al.~\cite{alahmadi2022falsepositives} established through qualitative
+interviews with 20 SOC practitioners that 99\% of raised security alarms are
+ultimately classified as non-actionable, with the majority constituting benign
+positives (legitimate administrative activity) rather than sensor false positives.
+Sadlek et al.~\cite{sadlek2025killchain} demonstrate that severity-based triage
+integrating kill-chain attack graph reasoning reduces analyst mean-time-to-respond
+(MTTR) by 38\% over threshold-based alert filtering alone.
+
+\subsection{Research Gap and Positioning}
+
+Table~\ref{tab:literature} summarizes our systematic comparison of related literature.
+The analysis reveals a consistent tripartite gap: (1) statistical classifiers lack
+kill-chain semantic reasoning; (2) LLM agents suffer from the empty-query premature
+termination failure mode; and (3) no existing system jointly addresses probabilistic
+calibration, structured knowledge retrieval, bounded investigation planning, and
+empirically validated human escalation thresholds. The proposed AI SOC Analyst Agent
+addresses all four dimensions through a single integrated spec-driven architecture.
+
+\begin{table}[t]
+\caption{Systematic Comparison of Related SOC Triage Literature}
+\label{tab:literature}
+\centering
+\resizebox{\columnwidth}{!}{%
+\begin{tabular}{llll}
+\toprule
+\textbf{System} & \textbf{Year} & \textbf{Core Approach} & \textbf{Key Limitation} \\
+\midrule
+CGR~\cite{freitas2024cgr}        & 2024 & GBDT + SHAP        & No kill-chain semantics \\
+CORTEX~\cite{wei2025cortex}      & 2025 & Multi-LLM Debate   & \$24/alert API cost \\
+AIDA~\cite{tsegai2026aida}       & 2026 & Tool ReAct         & $\geq$40.4\% FNR \\
+ExCyTIn~\cite{wu2026excytin}     & 2026 & Multi-hop Logs     & Reward plateau 0.606 \\
+Vigilance~\cite{tilbury2026vigilance} & 2026 & SOC Field Study  & Complacency trap \\
+Alahmadi~\cite{alahmadi2022falsepositives} & 2022 & Field Survey & BP vs.\ FP conflation \\
+\textbf{Ours}                    & 2026 & GBDT+RAG+ReAct+Gate & (This work) \\
+\bottomrule
+\end{tabular}%
+}
+\end{table}

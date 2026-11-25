@@ -1,0 +1,43 @@
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Effectiveness of the Evidence Gate}
+
+The 83.2\% relative reduction in TP FNR achieved by the Evidence Gate confirms
+that premature investigation termination on empty query returns is the dominant
+failure mode in tool-using LLM agents, as identified by Tsegai et al.~\cite{tsegai2026aida}.
+The gate introduces a soft pause mechanism: rather than immediately concluding FP,
+the agent reissues queries with expanded time windows or alternative host scopes
+before triggering human escalation. This behavioral modification requires no
+modification to the underlying LLM weights or inference procedure.
+
+\subsection{Operational Cost-Benefit Analysis}
+
+The 18.2\% human escalation rate represents an operational overhead relative to
+fully automated baselines. At enterprise scale (e.g., 50,000 daily alerts across
+a medium enterprise), this implies approximately 9,100 daily Tier-2 escalations.
+Given that standalone GBDT misses 18.4\% of true attacks and standalone LLMs miss
+40.4\%, the marginal cost of 18.2\% escalation is offset by the 11.6\% reduction
+in missed attacks relative to pure GBDT, translating to an estimated \$2.1 million
+in avoided breach costs per 1,000 prevented incidents (derived from IBM 2026
+per-incident cost of \$4.99M~\cite{ibm2026databreach} at a conservative 42\%
+reduction factor).
+
+\subsection{Threats to Validity}
+
+\textbf{Dataset telemetry anonymization:} Microsoft GUIDE applies privacy-preserving
+transformations to customer data, potentially removing low-level process command-line
+arguments that constitute important kill-chain indicators. This may systematically
+underestimate GBDT feature richness in production deployments where full telemetry
+is available.
+
+\textbf{LLM API latency variability:} The reported 1.25-second median latency
+assumes stable API endpoints with $<$500ms 95th-percentile call latency. Under
+API rate-limiting or provider outage conditions, the system degrades to standalone
+GBDT classification with automatic escalation, maintaining safety at the cost of
+reduced analytical depth.
+
+\textbf{MITRE ATT\&CK version drift:} The STIX~2.1 knowledge index was built from
+MITRE ATT\&CK v16.1. Future adversarial technique evolution may require periodic
+index refreshes. The modular Domain Knowledge Engine design enables independent
+reindexing without retraining downstream components.

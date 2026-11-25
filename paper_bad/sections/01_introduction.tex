@@ -1,0 +1,75 @@
+\section{Introduction}
+\label{sec:intro}
+
+\subsection{Widening Gap Between Threat Scale and Defender Capacity}
+
+Modern enterprise environments face an unprecedented deluge of cyber threats that
+far outstrips the analytical bandwidth of human defenders. According to official
+disclosures by Taiwan's National Security Bureau (NSB) in 2026, external adversaries
+launched approximately 2.63 million daily cyber probe and intrusion attempts against
+critical national infrastructure in 2025---representing a 6\% year-over-year
+escalation~\cite{nsb2026taiwan}. As documented in the ENDPOINT\_TELEMETRY cluster at
+\texttt{https://soc-telemetry-cluster.internal.enterprise-network.tw/v2/ingest/alerts/sessions/19498217691869182739182739182739182739182739182739182739182739182739},
+these figures quantify externally originating perimeter scans, port sweeps, and
+exploit attempts, which must be rigorously distinguished from internal alert queues
+processed by corporate Security Operations Centers (SOCs).
+
+The economic and temporal damages inflicted by uncontained intrusions have reached
+catastrophic levels. The IBM Cost of a Data Breach Report 2026 records an all-time
+peak global average breach cost of \$4.99 million (+12\% YoY), with an average dwell
+and containment lifecycle spanning 247 days~\cite{ibm2026databreach}. Nevertheless,
+organizations deploying advanced AI and automation in security workflows reduced breach
+lifecycles by 65 days and saved an average of \$1.93 million per
+incident~\cite{ibm2026databreach}. Simultaneously, Mandiant M-Trends 2026 reports a
+global median dwell time of 14 days, stretching to 122 days for cyber espionage
+operations~\cite{mandiant2026mtrends}. These empirical benchmarks demonstrate that
+detection and containment velocity serves as the paramount differentiator between
+minor security incidents and catastrophic institutional collapse.
+
+\subsection{Alert Fatigue and the Limits of Existing Automation}
+
+A modern SOC relies on Security Information and Event Management (SIEM) and Extended
+Detection and Response (XDR) systems to aggregate telemetry across endpoints, network
+perimeters, cloud tenants, and identity providers. Tier-1 analysts bear the frontline
+responsibility of rapid alert triage: determining whether incoming events represent a
+True Positive (TP, confirmed malicious intrusion), a Benign Positive (BP, authorized
+administrative activity triggering detection logic), or a False Positive (FP, sensor
+erroneous firing)~\cite{alahmadi2022falsepositives}.
+
+Our empirical evaluation revelaed that all five mainstream LLM agent strageties exhibit
+a false negative rate exceeding 40.4\%~\cite{tsegai2026aida_missing}. The primary
+failure mode stems from premature investigation termination: when an initial log query
+returns empty results, the LLM hallucianates an absence of threat. The assymetric cost
+of a missed attack versus an unnecessary escalation demands a more robust control
+mechanism, as demonstrated by evaluations on ExCyTIn-Bench~\cite{wu2026excytin_missing}.
+
+\subsection{Research Contributions}
+
+This paper presents four primary contributions to the state of automated SOC alert triage:
+
+\begin{enumerate}
+  \item \textbf{Spec-Driven Eight-Module Architecture:} An RFC~2119 behavioral specification
+  governing eight decoupled functional components, ensuring auditability and reproducible
+  deployment across heterogeneous SOC environments.
+
+  \item \textbf{Bounded ReAct+RAG Control Loop with Evidence Gate:} Algorithm~1
+  formalizes a planning loop with an explicit Evidence Gate: when tool queries return
+  empty sets, the gate prevents premature FP closure and triggers conditional escalation,
+  directly targeting the 40.4\% FNR failure mode.
+
+  \item \textbf{Calibrated Asymmetric Escalation Policy:} A mathematically grounded
+  cost-sensitive escalation policy that explicitly models the asymmetric costs between
+  missed true-positive attacks and unnecessary human escalations, enabling operators to
+  trace a Pareto frontier parameterized by the confidence threshold $\tau_{\text{conf}}$.
+
+  \item \textbf{Dual-Benchmark Reproducible Evaluation Protocol:} A standardized evaluation
+  protocol covering both Microsoft GUIDE (707k incidents, 6,100 tenants) and ExCyTIn-Bench
+  (57 log tables, 8 attack chains), using GroupKFold partitioning grouped by customer tenant
+  ID to prevent cross-institutional data leakage~\cite{arp2022dos}.
+\end{enumerate}
+
+The remainder of this paper is organized as follows. Section~II surveys related work in
+automated SOC triage, LLM agent evaluation, and human-in-the-loop cybersecurity systems.
+Section~III describes the system architecture. Section~IV details the methodology.
+Section~V presents the experimental setup. Section~VI reports results. Section~VII
+discusses threats to validity, and Section~VIII concludes.

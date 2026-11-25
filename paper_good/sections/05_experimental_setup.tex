@@ -1,0 +1,39 @@
+\section{Experimental Setup}
+\label{sec:setup}
+
+\subsection{Benchmark Datasets}
+
+We evaluate the proposed system across two complementary benchmark datasets:
+
+\textbf{Microsoft GUIDE}~\cite{freitas2024cgr} comprises 707,000 verified security
+incidents collected from 6,100 customer tenants. Each incident is annotated with
+one of three ground-truth labels (TP, BP, FP) and includes structured endpoint
+telemetry features (process creation events, network connections, file modifications,
+registry accesses). The dataset reflects realistic enterprise alert distributions,
+with 20.6\% TP, 49.0\% BP, and 30.4\% FP, reproducing the severe class imbalance
+characteristic of production SOC environments.
+
+\textbf{ExCyTIn-Bench}~\cite{wu2026excytin} consists of 57 relational log tables
+across 8 complete attack chain scenarios sourced from authentic breach investigations.
+Each scenario spans multiple MITRE ATT\&CK phases and requires cross-table join
+reasoning to reconstruct the attacker's footstep sequence. The investigation reward
+metric $r \in [0, 1]$ measures the fraction of correctly identified attacker steps.
+
+\subsection{Evaluation Protocol}
+
+To prevent cross-tenant data leakage~\cite{arp2022dos}, evaluation employs
+5-fold \texttt{GroupKFold} partitioning over Microsoft GUIDE, with groups defined
+by customer tenant ID and incident submission timestamp. This ensures that alerts
+from the same organizational environment are never simultaneously present in both
+training and test splits, preventing optimistic inflation of generalization metrics.
+
+GBDT hyperparameter tuning uses grid search over learning rate $\in \{0.05, 0.1\}$,
+maximum tree depth $\in \{4, 6, 8\}$, and subsample fraction $\in \{0.8, 1.0\}$,
+with macro-F1 as the selection criterion evaluated on held-out validation tenants.
+
+\subsection{Baseline Comparisons}
+
+We compare against four baselines: (1) Majority Class classifier as a lower bound;
+(2) Detector Rule Engine employing fixed threshold logic; (3) Standalone GBDT
+(CGR configuration~\cite{freitas2024cgr}) without ReAct planning; and (4) Standalone
+LLM agent (AIDA strategy~\cite{tsegai2026aida}) without GBDT priors or Evidence Gate.

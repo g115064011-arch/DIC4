@@ -1,0 +1,18 @@
+\section{Conclusion}
+\label{sec:conclusion}
+
+This paper presented the AI SOC Analyst Agent, a spec-driven multi-tier system
+resolving the 40.4\% false negative vulnerability of tool-using LLM agents in
+enterprise SOC alert triage. The core contribution---an explicit Evidence Gate
+embedded within a bounded ReAct+RAG planning loop---prevents premature investigation
+closure on empty tool query returns, the dominant failure mode identified across
+five evaluated agent architectures. Integrating calibrated GBDT statistical priors
+with MITRE ATT\&CK STIX~2.1 retrieval and an asymmetric escalation policy, the
+system achieves a Macro-F1 of 0.895 and reduces TP FNR to 6.8\% while maintaining
+an actionable 18.2\% human escalation rate on Microsoft GUIDE.
+
+Future work will extend the tool interface to industrial IoT and ICS environments
+through OT-specific telemetry schemas, evaluate cross-domain transfer of GBDT
+priors to smaller enterprise deployments lacking labeled incident history, and
+investigate federated learning approaches to enable privacy-preserving model
+updates across organizational boundaries without centralizing sensitive telemetry.

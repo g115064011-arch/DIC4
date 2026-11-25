@@ -1,0 +1,26 @@
+Modern Security Operations Centers (SOCs) confront an overwhelming volume
+of security alerts, of which only a small fraction represent authentic malicious
+intrusions. Official empirical telemetry reveals that Taiwan's critical
+infrastructure was targeted by 2.63 million daily cyber intrusion probes in 2025
+(+6\% YoY)~\cite{nsb2026taiwan}, while the IBM Cost of a Data Breach Report 2026
+recorded an all-time peak average breach cost of \$4.99 million (+12\% YoY) with
+a 247-day containment lifecycle~\cite{ibm2026databreach}. Concurrently, Mandiant
+M-Trends 2026 reported a global median attacker dwell time of only 14
+days~\cite{mandiant2026mtrends}, underscoring the criticality of rapid triage.
+However, in real-world enterprise telemetry (Microsoft GUIDE), True Positives
+constitute only 20.6\% of incidents, whereas Benign Positives (49.0\%) and False
+Positives (30.4\%) dominate, causing acute analyst alert fatigue. Crucially,
+empirical evaluations demonstrate that five mainstream tool-using LLM agent
+strategies suffer a false negative rate of at least 40.4\% due to premature
+investigation termination when log queries return empty sets, while ExCyTIn-Bench
+threat investigation rewards plateau at 0.606. To resolve these challenges, we
+propose the AI SOC Analyst Agent: a spec-driven, multi-tier system uniting
+calibrated Gradient Boosted Decision Tree (GBDT) classification, MITRE ATT\&CK
+STIX~2.1 knowledge retrieval, and bounded ReAct planning with an explicit Evidence
+Gate preventing premature closure. The architecture is decomposed into eight
+functional modules governed by an RFC~2119 behavioral specification. Evaluated on
+Microsoft GUIDE ($\sim$1M incidents) and ExCyTIn-Bench under GroupKFold
+partitioning to prevent cross-tenant data leakage, our calibrated escalation
+reduces the 40.4\% LLM miss rate to 6.8\%, achieves a Macro-F1 of 0.895, and
+maintains an 18.2\% human escalation rate, quantitatively tracing an actionable
+Pareto frontier between automation efficiency and analyst oversight.
