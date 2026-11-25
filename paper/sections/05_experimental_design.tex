@@ -1,0 +1,23 @@
+\section{Data Feasibility and Evaluation Protocol}
+
+\subsection{Empirical Benchmark Datasets}
+\begin{itemize}
+    \item \textbf{Microsoft GUIDE} \cite{freitas2024cgr}: A massive repository of analyst-labeled security incidents spanning 6,100 enterprise tenants. The training partition contains 707,000 verified incidents (20.6\% TP, 49.0\% BP, 30.4\% FP) and spans 432 unique MITRE ATT\&CK techniques.
+    \item \textbf{ExCyTIn-Bench} \cite{wu2026excytin}: A multi-hop threat investigation benchmark featuring 57 relational log tables and 8 comprehensive enterprise attack campaigns.
+\end{itemize}
+
+\subsection{Evaluation Baselines and Cross-Validation}
+To prevent temporal and institutional data leakage \cite{arp2022dos}, we deploy a 5-fold \texttt{GroupKFold} partitioning strategy grouped by customer tenant ID and incident timestamp. Comparisons incorporate:
+\begin{enumerate}
+    \item \textit{Majority Class Heuristic} (predicting Benign Positive).
+    \item \textit{Historical Detector Rule} (heuristics based on sensor FP rate).
+    \item \textit{Standalone GBDT} (tabular LightGBM without LLM reasoning).
+    \item \textit{Standalone LLM} (zero-shot GPT-4 without STIX RAG).
+    \item \textit{AI SOC Analyst Agent} (the proposed integrated system).
+\end{enumerate}
+
+\subsection{Primary Evaluation Metrics}
+\begin{equation}
+\text{FNR}_{\text{TP}} = \frac{\text{FN}_{\text{TP}}}{\text{TP} + \text{FN}_{\text{TP}}}, \quad \text{HER} = \frac{N_{\text{escalated}}}{N_{\text{total}}}
+\end{equation}
+where $\text{FNR}_{\text{TP}}$ denotes the True Positive False Negative Rate (miss rate), and $\text{HER}$ represents the Human Escalation Rate. Additional metrics include Macro-F1, ATT\&CK technique precision, token consumption, and execution latency.

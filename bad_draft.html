@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>DIC4 Bad Draft - Erroneous Version</title>
+<style>
+  @page {
+    size: letter;
+    margin: 18mm 15mm 20mm 15mm;
+  }
+  body {
+    font-family: "Times New Roman", Times, serif;
+    font-size: 10pt;
+    line-height: 1.25;
+    color: #111;
+    margin: 0;
+    padding: 0;
+  }
+  .header-watermark {
+    background-color: #fee2e2;
+    border: 2px solid #ef4444;
+    color: #991b1b;
+    padding: 10px 14px;
+    margin-bottom: 14px;
+    border-radius: 4px;
+    font-size: 9.5pt;
+    font-family: Arial, sans-serif;
+  }
+  .header-watermark h2 {
+    margin: 0 0 4px 0;
+    font-size: 12pt;
+    color: #b91c1c;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .two-col {
+    column-count: 2;
+    column-gap: 7mm;
+    text-align: justify;
+  }
+  .title-block {
+    text-align: center;
+    margin-bottom: 14px;
+  }
+  h1.title {
+    font-size: 16pt;
+    font-weight: bold;
+    margin: 0 0 6px 0;
+  }
+  .authors {
+    font-size: 10pt;
+    margin-bottom: 6px;
+  }
+  .conf-tag {
+    font-size: 9pt;
+    color: #666;
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+  .error-callout {
+    background-color: #fff1f2;
+    border-left: 4px solid #e11d48;
+    padding: 6px 10px;
+    margin: 10px 0;
+    font-family: Arial, sans-serif;
+    font-size: 8.5pt;
+    color: #9f1239;
+    break-inside: avoid;
+  }
+  .error-callout strong {
+    color: #be123c;
+  }
+  h2.section-title {
+    font-size: 10pt;
+    font-weight: bold;
+    text-transform: uppercase;
+    text-align: center;
+    margin: 12px 0 6px 0;
+  }
+  h3.sub-title {
+    font-size: 9.5pt;
+    font-weight: bold;
+    font-style: italic;
+    margin: 8px 0 4px 0;
+  }
+  p {
+    text-indent: 1.2em;
+    margin: 0 0 6px 0;
+  }
+  .abstract-box {
+    margin: 0 0 10px 0;
+    font-size: 9pt;
+  }
+  .abstract-title {
+    font-weight: bold;
+    font-style: italic;
+  }
+  .bib-entry {
+    margin-bottom: 6px;
+    font-size: 8pt;
+    padding-left: 1.5em;
+    text-indent: -1.5em;
+  }
+  .compile-warning {
+    color: #c2410c;
+    background: #ffedd5;
+    padding: 4px 8px;
+    font-family: monospace;
+    font-size: 7.5pt;
+    margin: 4px 0;
+    border-radius: 2px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header-watermark">
+  <h2>⚠️ [AUDIT REPORT: ERRONEOUS DRAFT (交件：壞的 PDF)]</h2>
+  <strong>診斷說明</strong>：此版本對應於上傳至 Overleaf 專案 (ID: 6afafb3ef4ed8b43cc1d222) 之初始草稿。經深度審查共發現 <strong>5 大致命架構錯誤與編譯缺陷</strong>，無法通過 DIC4 期末專題與 IEEE 會議審查標準。
+</div>
+
+<div class="title-block">
+  <h1 class="title">Taiwan Housing Intelligence Agent: A Spec-Driven AI System for Traceable Market Analysis</h1>
+  <div class="authors">[Author 1], [Author 2], [Author 3], [Author 4]</div>
+  <div class="conf-tag">Targeted Venue: ICEIB 2026 (International Conference on E-business and Internet)</div>
+</div>
+
+<div class="two-col">
+
+  <div class="error-callout">
+    <strong>[致命錯誤 1：專題主題嚴重錯置 (Domain Mismatch)]</strong><br>
+    本組期末專題為 DIC3 的 <strong>AI SOC Analyst Agent</strong>（資安告警分級代理人，第16組），此草稿誤植為「台灣房地產實價登錄分析代理人」(Taiwan Housing Intelligence Agent)，完全偏離組別既有之研究主體與技術積累。
+  </div>
+
+  <div class="abstract-box">
+    <span class="abstract-title">Abstract</span>—Taiwan's housing market presents significant decision-making challenges for buyers seeking reliable property comparisons in an increasingly complex transaction landscape. Public housing transaction records, while extensive, do not represent the full market; variations in property types, area measurement standards, and parking definitions significantly affect price comparisons. We propose a spec-driven AI system for market analysis. We evaluate the proposed system on official transaction records. Preliminary outcomes indicate transparency improvements.
+  </div>
+
+  <div class="error-callout">
+    <strong>[致命錯誤 2：Checkpoints A~F 粗糙且缺乏實證支持]</strong><br>
+    本草稿雖標註 Checkpoint，但缺乏實證數據與研究依據。未引用 2026 年最新官方與產業實證指標，缺少學術深度，未闡述 TP/BP/FP 分級、40.4% LLM 漏判率、Microsoft GUIDE 100萬筆數據或 ExCyTIn-Bench 評測。
+  </div>
+
+  <h2 class="section-title">I. Introduction</h2>
+  <p>Real estate acquisitions constitute one of the most substantial financial investments individuals undertake. In Taiwan, the Ministry of the Interior operates the Actual Price Registration (APR) platform to record property conveyances.</p>
+  <p>However, users face significant obstacles when comparing heterogeneous properties due to uncalibrated parking inclusions and variable balcony square meters.</p>
+
+  <div class="error-callout">
+    <strong>[致命錯誤 3：架構與研究貢獻薄弱]</strong><br>
+    缺乏系統化架構支持，未定義 RFC 2119 規範詞彙（SHALL/MUST）、未解決人機協同自滿偏誤（Automation Complacency），亦未設計錯誤成本不對稱（Asymmetric Error Cost）的安全防護閘。
+  </div>
+
+  <h2 class="section-title">II. Proposed Scheme</h2>
+  <p>The proposed framework incorporates a conversational interface linked to a database query engine. When an inquiry is submitted, an agent executes SQL statements over property listings.</p>
+
+  <div class="error-callout">
+    <strong>[致命錯誤 4：缺乏形式化演算法與可重現實驗]</strong><br>
+    無完整演算法虛擬碼，未對抗 premature empty-query closure（查無紀錄即判定無害之嚴重缺陷），且無消融實驗與 GroupKFold 防資料外洩設計。
+  </div>
+
+  <h2 class="section-title">III. Evaluation</h2>
+  <p>We evaluate transaction queries on a snapshot from Taichung City. Preliminary queries succeed in retrieving records within 1.2 seconds.</p>
+
+  <div class="error-callout">
+    <strong>[致命錯誤 5：參考文獻格式錯亂與 Overleaf 編譯警告]</strong><br>
+    在 Overleaf 中以裸網址 `\url{...}` 塞入 `\bibitem`，缺少標準 BibTeX 欄位（作者、期刊、年份、DOI），導致 Overleaf 編譯時產生多起「citation undefined」與「empty bibentry」警告（如圖8所示）。
+  </div>
+
+  <h2 class="section-title">References</h2>
+  <div class="compile-warning">⚠️ Overleaf Warning: Citation 'moi_qa' on page 5 undefined on input line 371</div>
+  <div class="bib-entry">[1] Ministry of the Interior, R.O.C. (Taiwan), "Real Estate Transaction Price Inquiry Service FAQ," [Online]. Available: https://lvr.land.moi.gov.tw/jsp/qa.jsp</div>
+  <div class="compile-warning">⚠️ Overleaf Warning: Citation 'moi_policy' on page 5 undefined on input line 376</div>
+  <div class="bib-entry">[2] Department of Land Administration, "Implementing Real-Estate Price Information Transparency," https://www.land.moi.gov.tw/chhtml/content/1123?mcid=5129</div>
+  <div class="compile-warning">⚠️ Overleaf Warning: Unresolved hyperref destination 'moi_schedule'</div>
+  <div class="bib-entry">[3] Department of Land Administration, "Actual Price Registration Information Section," https://www.land.moi.gov.tw/chhtml/content/90?mcid=471</div>
+
+</div>
+
+</body>
+</html>

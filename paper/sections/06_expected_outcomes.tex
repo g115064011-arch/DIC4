@@ -1,0 +1,10 @@
+\section{Expected Outcomes and Discussion}
+
+\subsection{Miss Rate vs.\ Escalation Rate Pareto Frontier}
+We project that the AI SOC Analyst Agent will trace an optimal Pareto efficiency curve between TP Miss Rate and Human Escalation Rate. While standalone GBDT models achieve low escalation rates, their miss rates on complex living-off-the-land attacks remain high ($\approx 18\%$). Conversely, unconstrained LLMs suffer from high token costs and inconsistent reasoning. By tuning threshold $\tauConf \in [0.60, 0.85]$, SOC teams can configure escalation volumes matching their Tier-2 analyst staffing capacities.
+
+\subsection{Threats to Validity and Mitigation}
+\begin{itemize}
+    \item \textit{Telemetry Anonymization}: Real-world enterprise datasets like GUIDE anonymize raw command lines. \textit{Mitigation}: The GBDT handles tabular telemetry, while ExCyTIn-Bench validates semantic log investigation.
+    \item \textit{Inference Latency}: Multi-hop LLM queries introduce latency. \textit{Mitigation}: We enforce a strict tool hop limit ($B=5$) and cache repeated STIX technique vector embeddings.
+\end{itemize}

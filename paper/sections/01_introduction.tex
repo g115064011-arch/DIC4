@@ -1,0 +1,31 @@
+\section{Introduction}
+
+\subsection{Attention Getter: Widening Gap Between Attack Scale and Defender Response}
+Modern enterprise environments face an unprecedented deluge of cyber threats that far outstrips the analytical bandwidth of human defenders. According to official disclosures by Taiwan's National Security Bureau (NSB) in 2026, external adversaries launched approximately 2.63 million daily cyber probe and intrusion attempts against critical national infrastructure in 2025---representing a 6\% year-over-year escalation \cite{nsb2026taiwan}. Crucially, these figures quantify externally originating perimeter scans, port sweeps, and exploit attempts, which must be rigorously distinguished from the internal alert queues processed by corporate Security Operations Centers (SOCs); confusing external probe volumes with internal SOC alert loads misrepresents operational queue burdens.
+
+The economic and temporal damages inflicted by uncontained intrusions have reached catastrophic levels. The IBM Cost of a Data Breach Report 2026 records an all-time peak global average breach cost of \$4.99 million (+12\% YoY), with an average dwell and containment lifecycle spanning 247 days \cite{ibm2026databreach}. Nevertheless, organizations deploying advanced AI and automation in security workflows reduced breach lifecycles by 65 days and saved an average of \$1.93 million per incident \cite{ibm2026databreach}. Simultaneously, Mandiant M-Trends 2026 reports a global median dwell time of 14 days, stretching to 122 days for cyber espionage operations \cite{mandiant2026mtrends}. These empirical benchmarks demonstrate that detection and containment velocity serves as the paramount differentiator between minor security incidents and catastrophic institutional collapse.
+
+\subsection{Background: Operational Realities of Tiered SOC Workflows}
+A modern SOC relies on Security Information and Event Management (SIEM) and Extended Detection and Response (XDR) systems to aggregate telemetry across endpoints, network perimeters, cloud tenants, and identity providers. Tier-1 analysts bear the frontline responsibility of rapid alert triage: determining whether incoming events represent a True Positive (TP, confirmed malicious intrusion), a Benign Positive (BP, authorized administrative activity triggering detection logic), or a False Positive (FP, sensor erroneous firing) \cite{alahmadi2022falsepositives}. 
+
+The distinction between BP and FP is operationally critical: empirical studies by Alahmadi et al.\ \cite{alahmadi2022falsepositives} establish that the vast majority of dismissed alarms are benign positives rather than erroneous false alarms. Analysts map alerts against the MITRE ATT\&CK matrix \cite{sadlek2025killchain} and adhere to standard incident handling frameworks such as NIST SP 800-61 Rev.~3 \cite{nist2025sp80061r3}, which mandates prioritized triage based on threat progression rather than chronological arrival order.
+
+\subsection{Problem Statement and Research Gaps}
+Despite these standardized procedures, alert triage remains the primary bottleneck of enterprise cybersecurity. In the Microsoft GUIDE dataset---encompassing $\sim$1 million real-world enterprise incidents---TPs account for only 20.6\%, while BPs represent 49.0\% and FPs constitute 30.4\% \cite{freitas2024cgr}. Analysts suffering from severe alert fatigue inevitably miss genuine threats \cite{ndichu2026survey}. 
+
+Current automated solutions suffer from four foundational gaps:
+\begin{enumerate}
+    \item \textbf{Statistical ML models lack kill-chain context}: Standalone classifiers such as CGR \cite{freitas2024cgr} and AIP \cite{freitas2026aip} achieve high statistical F1 scores, but fail to reason over multi-step attack progression.
+    \item \textbf{LLM agents exhibit alarming false negative rates}: As established by Tsegai et al.\ \cite{tsegai2026aida}, five mainstream LLM reasoning strategies miss over 40.4\% of attack alerts due to premature termination when log queries return empty sets (treating ``no evidence'' as ``no attack'').
+    \item \textbf{Low reasoning accuracy on forensic benchmarks}: On ExCyTIn-Bench, top LLMs attain only 0.606 investigation reward \cite{wu2026excytin}.
+    \item \textbf{Automation complacency}: Unchecked black-box automation diminishes analyst vigilance and degrades oversight \cite{tilbury2026vigilance}.
+\end{enumerate}
+
+\subsection{Research Contributions}
+To resolve these challenges, this paper presents the following contributions:
+\begin{enumerate}
+    \item \textbf{Spec-Driven Eight-Module System}: We architect an open, modular SOC analyst agent governed by RFC 2119 formal specifications and OpenSpec SDD schemas.
+    \item \textbf{Bounded ReAct+RAG Control Loop}: We propose Algorithm~1, integrating GBDT priors, STIX 2.1 knowledge retrieval, and an explicit Evidence Gate preventing premature investigation closure.
+    \item \textbf{Asymmetric Escalation Policy}: We formulate a multi-trigger escalation mechanism that systematically defers low-confidence or high-impact incidents to human analysts.
+    \item \textbf{Empirical Evaluation Protocol}: We benchmark across Microsoft GUIDE and ExCyTIn-Bench, providing a reproducible roadmap for tiered SOC deployment.
+\end{enumerate}

@@ -1,0 +1,64 @@
+\section{Proposed System Architecture}
+
+\subsection{Eight-Module Architecture}
+The system comprises eight decoupled functional modules:
+\begin{itemize}
+    \item \textbf{\textcircled{1} User / Alert Queue}: Interfaces with Tier-1 analysts and SIEM queues.
+    \item \textbf{\textcircled{2} Alert Ingestion}: Validates schema, parses multi-tenant alert bundles, and normalizes incident objects.
+    \item \textbf{\textcircled{3} Planner \& Reasoning Agent}: Coordinates bounded ReAct loops with tool budgets ($B \le 5$ hops).
+    \item \textbf{\textcircled{4} Data Acquisition / Evidence Store}: Executes parameterized SQL queries over endpoint and authentication logs.
+    \item \textbf{\textcircled{5} Analytics Engine}: Computes calibrated GBDT probabilities ($P_{\text{TP}}, P_{\text{BP}}, P_{\text{FP}}$) and TreeSHAP values.
+    \item \textbf{\textcircled{6} Domain Knowledge Engine}: Stores MITRE ATT\&CK STIX 2.1 embeddings and NIST SP 800-61 Rev.~3 response playbooks.
+    \item \textbf{\textcircled{7} Decision \& Evidence Fusion Engine}: Reconciles predictions, enforces RFC 2119 escalation rules, and evaluates confidence.
+    \item \textbf{\textcircled{8} Output \& Interaction}: Generates structured Markdown and JSON reports.
+\end{itemize}
+
+\subsection{Tool Contracts and Provenance}
+Table~\ref{tab:tool_contracts} formalizes the conceptual tool contracts governing agentic execution. All tools are strictly read-only, preventing unintended modifications to production SIEM systems.
+
+\begin{table}[h]
+\caption{Conceptual Read-Only Tool Contracts and Interfaces}
+\label{tab:tool_contracts}
+\centering
+\small
+\begin{tabular}{lp{2.8cm}p{3.2cm}}
+\toprule
+\textbf{Tool Capability} & \textbf{Typed Inputs} & \textbf{Validated Outputs} \\
+\midrule
+\texttt{query\_logs} & Host ID, Time Range, Query Type & Normalized event list, match count, empty-flag \\
+\texttt{predict\_gbdt} & Aggregated alert feature vector & Calibrated $(P_{\text{TP}}, P_{\text{BP}}, P_{\text{FP}})$, TreeSHAP top-3 features \\
+\texttt{rag\_attck} & Extracted command/alert text & Technique ID, Tactic name, Kill-chain phase \\
+\texttt{get\_playbook} & ATT\&CK Tactic name & NIST SP 800-61r3 action steps \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\subsection{Bounded ReAct+RAG Control Algorithm}
+Algorithm~\ref{alg:react} formalizes the execution loop. An explicit Evidence Gate (lines 14--16) audits query results: if tool queries yield empty sets, the system halts premature FP closure and triggers human escalation.
+
+\begin{algorithm}[t]
+\caption{Bounded ReAct+RAG with Evidence Gate}
+\label{alg:react}
+\begin{algorithmic}[1]
+\REQUIRE Incident $I$, Threshold $\tauConf$, Max hops $B$
+\ENSURE Triage Verdict $V$, Escalation flag $E$
+\STATE $(P_{\text{TP}}, P_{\text{BP}}, P_{\text{FP}}) \leftarrow \text{PredictGBDT}(I)$
+\STATE $\mathcal{K} \leftarrow \text{RetrieveATTCK}(I.\text{context})$
+\STATE $\mathcal{E} \leftarrow \emptyset$, $b \leftarrow 0$, $E \leftarrow \text{False}$
+\WHILE{$b < B$ \AND \NOT Terminated}
+    \STATE $A \leftarrow \text{LLMPlannerThought}(I, \mathcal{E}, \mathcal{K})$
+    \IF{$A = \text{CALL\_TOOL}(tool, args)$}
+        \STATE $R \leftarrow \text{ExecuteTool}(tool, args)$
+        \IF{$R.\text{is\_empty}$ \AND $P_{\text{TP}} < 0.5$}
+            \STATE $E \leftarrow \text{True}$ \COMMENT{Anti-premature-closure gate}
+        \ENDIF
+        \STATE $\mathcal{E} \leftarrow \mathcal{E} \cup \{R\}$
+    \ELSIF{$A = \text{CONCLUDE}$}
+        \STATE \textbf{break}
+    \ENDIF
+    \STATE $b \leftarrow b + 1$
+\ENDWHILE
+\STATE $V, E \leftarrow \text{EvidenceFusion}(P, \mathcal{E}, \mathcal{K}, \tauConf, E)$
+\RETURN $(V, E)$
+\end{algorithmic}
+\end{algorithm}

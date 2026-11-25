@@ -1,0 +1,20 @@
+\section{Domain Analysis and Design Principles}
+
+Designing an automated triage system requires anchoring software architecture to battle-tested cybersecurity operational doctrines.
+
+\subsection{Five Core Architectural Mindsets}
+Our system operationalizes five fundamental principles:
+\begin{enumerate}
+    \item \textbf{M1: Assume Breach}: The architecture assumes adversaries have bypassed perimeter defenses. The agent does not trust clean initial telemetry, requiring corroborating endpoint and identity logs.
+    \item \textbf{M2: Context Awareness}: A single alert carries little standalone meaning. Incident-level aggregation correlates alerts across host, user, and parent-child process lineages.
+    \item \textbf{M3: Asymmetric Error Cost}: The cost of a False Negative (overlooking an active ransomware or data breach incident, costing upwards of \$4.99M \cite{ibm2026databreach}) exceeds the cost of a False Positive (wasting 15 minutes of Tier-1 review) by orders of magnitude. The decision logic reflects this cost asymmetry.
+    \item \textbf{M4: Pyramid of Pain}: The agent prioritizes higher-order behavioral indicators (TTPs and attack techniques) over fragile atomic indicators (IP addresses and file hashes).
+    \item \textbf{M5: Human-in-the-Loop}: Rather than pursuing full autonomy, the agent functions as a high-precision filter, identifying cases demanding human expertise.
+\end{enumerate}
+
+\subsection{Resolving Three Foundational Controversies}
+\begin{itemize}
+    \item \textbf{Controversy 1 (ML vs.\ LLM)}: Pure ML lacks contextual explanation, whereas pure LLMs hallucinate and suffer 40.4\% miss rates. \textit{Our Resolution}: We decouple statistical prior estimation (GBDT) from contextual reasoning (LLM + STIX RAG).
+    \item \textbf{Controversy 2 (Automation vs.\ Oversight)}: Over-automation degrades analyst vigilance \cite{tilbury2026vigilance}. \textit{Our Resolution}: Transparent TreeSHAP feature attributions and deterministic escalation thresholds ($\tau_{\text{conf}}$) preserve analyst situational awareness.
+    \item \textbf{Controversy 3 (Synthetic vs.\ Real-World Benchmarks)}: Synthetic logs (e.g., CICIDS2017) suffer from known distribution artifacts \cite{arp2022dos}. \textit{Our Resolution}: Evaluation is anchored in Microsoft GUIDE and ExCyTIn-Bench.
+\end{itemize}

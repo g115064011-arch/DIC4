@@ -1,0 +1,35 @@
+\section{Related Work}
+
+A comprehensive analysis of automated SOC alert triage necessitates examining both machine learning methodologies and cybersecurity operational realities. In accordance with rigorous scientific review principles, our survey balances 50\% AI technology innovations and 50\% domain security operational studies.
+
+\subsection{Machine Learning and Statistical Alert Prioritization}
+Early automated triage focused on machine learning classifiers trained on security telemetry. Microsoft's Copilot Guided Response (CGR) \cite{freitas2024cgr} deployed Gradient Boosted Decision Trees across enterprise tenants, demonstrating that tabular classifiers achieve macro-F1 scores above 0.87 for TP/BP/FP triage. Freitas et al.\ \cite{freitas2026aip} introduced Adaptive Incident Prioritization (AIP) to dynamically sort incident queues based on historical likelihood. While computationally efficient, these statistical models treat incidents as isolated feature vectors, lacking the semantic reasoning required to interpret novel multi-stage attack campaigns.
+
+\subsection{LLM Reasoning and Autonomous Investigation Agents}
+With the advent of Large Language Models, researchers explored autonomous investigation agents. CORTEX \cite{wei2025cortex} pioneered collaborative LLM agents performing high-stakes triage. However, Tsegai et al.\ (AIDA) \cite{tsegai2026aida} conducted exhaustive empirical tests demonstrating that five prominent tool-using agent architectures exhibit a false negative rate $\ge 40.4\%$. The primary failure mode stems from ``premature investigation termination''---when an initial log query returns empty results, the LLM hallucinates an absence of threat.
+
+Benchmark suites such as ExCyTIn-Bench \cite{wu2026excytin} (comprising 57 relational log tables and authentic multi-hop attack scenarios) and CyberSOCEval \cite{deason2025cybersoceval} establish that LLM investigation rewards plateau around 0.606. TechniqueRAG \cite{lekssays2025techniquerag} addresses knowledge hallucination by retrieving MITRE ATT\&CK techniques from structured CTI corpora.
+
+\subsection{Domain Security Practices and Human Factors}
+Operational literature emphasizes that alert fatigue is driven by benign positives rather than pure false alarms \cite{alahmadi2022falsepositives, ndichu2026survey}. Tilbury and Flowerday \cite{tilbury2026vigilance} discovered the ``Vigilance Paradox'': when triage automation exceeds certain reliability thresholds, human analysts cease cognitive verification, accepting erroneous AI verdicts. Consequently, human-in-the-loop escalation frameworks and NIST SP 800-61 Rev.~3 playbooks \cite{nist2025sp80061r3} remain imperative.
+
+\begin{table*}[t]
+\caption{Systematic Comparative Matrix of AI-Driven SOC Alert Triage Literature}
+\label{tab:literature}
+\centering
+\small
+\begin{tabular}{lp{3.2cm}p{3.5cm}p{3.2cm}p{3.5cm}}
+\toprule
+\textbf{Ref. \& Year} & \textbf{Core Methodology} & \textbf{Evaluation Dataset} & \textbf{Key Empirical Findings} & \textbf{Identified Research Gap} \\
+\midrule
+CGR (2024) \cite{freitas2024cgr} & GBDT + TreeSHAP priors & Microsoft GUIDE ($\sim$1M incidents) & Macro-F1 0.87 across 6.1k tenants & Lacks attack progression semantics \\
+CORTEX (2025) \cite{wei2025cortex} & Multi-agent LLM debate & Proprietary enterprise alerts & Enhanced qualitative explanations & Unbounded token costs ($\sim$24k/alert) \\
+AIDA (2026) \cite{tsegai2026aida} & Tool-using ReAct LLMs & Synthetic \& enterprise logs & $\ge 40.4\%$ FNR due to empty queries & Fails on stealthy Living-off-the-Land \\
+ExCyTIn (2026) \cite{wu2026excytin} & Multi-hop SQL investigation & 57 relational log tables & State-of-the-art reward capped at 0.606 & Standalone LLM struggles without RAG \\
+TechniqueRAG \cite{lekssays2025techniquerag} & Vector RAG on STIX 2.1 & CTI report benchmarks & Top-1 technique accuracy +31\% & Evaluated on text, not telemetry \\
+AIP (2026) \cite{freitas2026aip} & Online ranking algorithms & Enterprise SOC queues & Mean-time-to-triage reduced by 38\% & No human escalation thresholding \\
+Vigilance (2026) \cite{tilbury2026vigilance} & Human-factor field study & Tier-1 SOC operational teams & Automation complacency erodes oversight & Requires principled hand-off boundary \\
+Alahmadi (2022) \cite{alahmadi2022falsepositives} & Qualitative empirical survey & 20+ enterprise SOC interviews & 99\% alarms non-actionable; BP $\gg$ FP & Binary triage conflates BP with FP \\
+\bottomrule
+\end{tabular}
+\end{table*}
